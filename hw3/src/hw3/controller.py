@@ -8,7 +8,7 @@ from turtlesim.msg import Pose
 from geometry_msgs.msg import Twist
 
 DIST_THRESHOLD = 0.1
-VELOCITY = 1.
+VELOCITY = 1
 
 
 def get_angle(pos1, pos2):
@@ -31,16 +31,24 @@ class Controller:
     	self.move_turtle2()
     	
     def update_pos2(self, pos):
-        self.pos2 = pos
-        self.move_turtle2()
-    
+    	self.pos2 = pos
+        
     def move_turtle2(self):
-        dist  =  get_dist(self.pos1, self.pos1)
-        angle = get_angle(self.pos1, self.pos2) - self.pos2.theta
-       
+        dist  =  get_dist(self.pos2, self.pos1)
+        angle = get_angle(self.pos2, self.pos1) - self.pos2.theta
+        
+        while angle > math.pi:
+            angle -= 2. * math.pi
+        while angle < - math.pi:
+            angle += 2. * math.pi
+            
         twist = Twist()
-        twist.linear.x = VELOCITY
-        twist.angular.z = angle
+        twist.linear.x = 0
+        twist.angular.z = 0
+        
+        if dist > DIST_THRESHOLD:
+            twist.linear.x = min(dist, VELOCITY)
+            twist.angular.z = angle
         self.publisher.publish(twist)
       
         
