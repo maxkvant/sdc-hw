@@ -7,7 +7,7 @@ from rospy import Publisher, Subscriber
 from turtlesim.msg import Pose
 from geometry_msgs.msg import Twist
 
-DIST_THRESHOLD = 0.
+DIST_THRESHOLD = 0.1
 VELOCITY = 1.
 
 
@@ -26,28 +26,22 @@ class Controller:
         self.pos2 = Pose()
         self.publisher = Publisher('/turtle2/cmd_vel', Twist, queue_size=10)
         
-    def update_pos2(self, pos):
-        self.pos2 = pos
-        # self.move_turtle2()
-        
     def update_pos1(self, pos):
     	self.pos1 = pos
     	self.move_turtle2()
+    	
+    def update_pos2(self, pos):
+        self.pos2 = pos
+        self.move_turtle2()
     
     def move_turtle2(self):
         dist  =  get_dist(self.pos1, self.pos1)
         angle = get_angle(self.pos1, self.pos2) - self.pos2.theta
-        
-        while angle > math.pi:
-            angle -= 2. * math.pi
-        while angle < math.pi:
-            angle += 2. * math.pi
-            
-        if dist > DIST_THRESHOLD:
-            twist = Twist()
-            twist.linear.x = min(dist, VELOCITY)
-            twist.angular.z = angle
-            self.publisher.publish(twist)
+       
+        twist = Twist()
+        twist.linear.x = VELOCITY
+        twist.angular.z = angle
+        self.publisher.publish(twist)
       
         
 if __name__ == '__main__':
